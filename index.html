@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0D1245">
+  <meta name="description" content="Pronađi događanja, koncerte i klubove u Zagrebu">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Out and About</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══════════════ SPLASH SCREEN ══════════════ -->
+<div id="splash" class="screen active">
+  <div class="splash-content">
+    <div class="splash-logo">
+      <span>OUT AND</span>
+      <span>ABOUT</span>
+    </div>
+    <p class="splash-tagline">Zagreb je tvoj playground</p>
+    <div class="splash-loader">
+      <div class="splash-dot"></div>
+      <div class="splash-dot"></div>
+      <div class="splash-dot"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ONBOARDING ══════════════ -->
+<div id="onboarding" class="screen">
+
+  <div class="onboarding-slides" id="onboardingSlides">
+
+    <!-- Slide 1: Interesi -->
+    <div class="onboarding-slide">
+      <p class="slide-step">Korak 1 od 5</p>
+      <h2 class="slide-question">Što te zanima?</h2>
+      <p class="slide-sub">Odaberi sve što te privlači — prilagodit ćemo prijedloge za tebe.</p>
+
+      <div class="interest-grid">
+        <div class="interest-card" data-interest="glazba" onclick="toggleInterest(this)">
+          <div class="check">✓</div>
+          <div class="interest-icon">🎵</div>
+          <div class="interest-label">Glazba</div>
+        </div>
+        <div class="interest-card" data-interest="nocni-zivot" onclick="toggleInterest(this)">
+          <div class="check">✓</div>
+          <div class="interest-icon">🎉</div>
+          <div class="interest-label">Noćni život</div>
+        </div>
+        <div class="interest-card" data-interest="sport" onclick="toggleInterest(this)">
+          <div class="check">✓</div>
+          <div class="interest-icon">⚽</div>
+          <div class="interest-label">Sport</div>
+        </div>
+        <div class="interest-card" data-interest="kultura" onclick="toggleInterest(this)">
+          <div class="check">✓</div>
+          <div class="interest-icon">🎭</div>
+          <div class="interest-label">Kultura</div>
+        </div>
+        <div class="interest-card" data-interest="festivali" onclick="toggleInterest(this)">
+          <div class="check">✓</div>
+          <div class="interest-icon">🎪</div>
+          <div class="interest-label">Festivali</div>
+        </div>
+        <div class="interest-card" data-interest="hrana" onclick="toggleInterest(this)">
+          <div class="check">✓</div>
+          <div class="interest-icon">🍕</div>
+          <div class="interest-label">Food & Drink</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 2: Glazba -->
+    <div class="onboarding-slide">
+      <p class="slide-step">Korak 2 od 5</p>
+      <h2 class="slide-question">Koja glazba ti gori?</h2>
+      <p class="slide-sub">Možeš odabrati više žanrova.</p>
+
+      <div class="interest-grid">
+        <div class="interest-card" data-interest="elektronika" onclick="toggleInterest(this)">
+          <div class="check">✓</div>
+          <div class="interest-icon">🎛️</div>
+          <div class="interest-label">Elektronika</div>
+        </div>
+        <div class="interest-card" data-interest="pop" onclick="toggleInterest(this)">
+          <div class="check">✓</div>
+          <div class="interest-icon">🎤</div>
+          <div class="interest-label">Pop / R&B</div>
+        </div>
+        <div class="interest-card" data-interest="rock" onclick="toggleInterest(this)">
+          <div class="check">✓</div>
+          <div class="interest-icon">🎸</div>
+          <div class="interest-label">Rock</div>
+        </div>
+        <div class="interest-card" data-interest="domaća" onclick="toggleInterest(this)">
+          <div class="check">✓</div>
+          <div class="interest-icon">🇭🇷</div>
+          <div class="interest-label">Domaća</div>
+        </div>
+        <div class="interest-card" data-interest="hiphop" onclick="toggleInterest(this)">
+          <div class="check">✓</div>
+          <div class="interest-icon">🎧</div>
+          <div class="interest-label">Hip-Hop</div>
+        </div>
+        <div class="interest-card" data-interest="jazz" onclick="toggleInterest(this)">
+          <div class="check">✓</div>
+          <div class="interest-icon">🎷</div>
+          <div class="interest-label">Jazz / Soul</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 3: Kada izlaziš -->
+    <div class="onboarding-slide">
+      <p class="slide-step">Korak 3 od 5</p>
+      <h2 class="slide-question">Kad najčešće izlaziš?</h2>
+      <p class="slide-sub">Prilagodit ćemo preporuke tvojim slobodnim danima.</p>
+
+      <div class="option-list">
+        <div class="option-item" data-value="vikend" onclick="selectOption(this, 'when')">
+          <span class="option-emoji">🍺</span>
+          Vikend (petak, subota)
+        </div>
+        <div class="option-item" data-value="tjedno" onclick="selectOption(this, 'when')">
+          <span class="option-emoji">📅</span>
+          Radnim danom (srijeda, četvrtak)
+        </div>
+        <div class="option-item" data-value="uvijek" onclick="selectOption(this, 'when')">
+          <span class="option-emoji">🔥</span>
+          Svaki dan — živim noćni život
+        </div>
+        <div class="option-item" data-value="rijetko" onclick="selectOption(this, 'when')">
+          <span class="option-emoji">🎯</span>
+          Samo za posebne prilike
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 4: Dob -->
+    <div class="onboarding-slide">
+      <p class="slide-step">Korak 4 od 5</p>
+      <h2 class="slide-question">Koliko imaš godina?</h2>
+      <p class="slide-sub">Koristimo dob samo za bolje preporuke — nikad ne dijelimo podatke.</p>
+
+      <div class="option-list">
+        <div class="option-item" data-value="18-20" onclick="selectOption(this, 'age')">
+          <span class="option-emoji">🆕</span>
+          18 – 20 godina
+        </div>
+        <div class="option-item" data-value="21-25" onclick="selectOption(this, 'age')">
+          <span class="option-emoji">🎓</span>
+          21 – 25 godina
+        </div>
+        <div class="option-item" data-value="26-30" onclick="selectOption(this, 'age')">
+          <span class="option-emoji">💼</span>
+          26 – 30 godina
+        </div>
+        <div class="option-item" data-value="30+" onclick="selectOption(this, 'age')">
+          <span class="option-emoji">👑</span>
+          30+ godina
+        </div>
+      </div>
+    </div>
+
+    <!-- Slide 5: Spol -->
+    <div class="onboarding-slide">
+      <p class="slide-step">Korak 5 od 5</p>
+      <h2 class="slide-question">Kako se identificiraš?</h2>
+      <p class="slide-sub">Potpuno opcionalno — pomaže nam prilagoditi preporuke.</p>
+
+      <div class="option-list">
+        <div class="option-item" data-value="musko" onclick="selectOption(this, 'gender')">
+          <span class="option-emoji">👦</span>
+          Muško
+        </div>
+        <div class="option-item" data-value="zensko" onclick="selectOption(this, 'gender')">
+          <span class="option-emoji">👧</span>
+          Žensko
+        </div>
+        <div class="option-item" data-value="ostalo" onclick="selectOption(this, 'gender')">
+          <span class="option-emoji">🌈</span>
+          Ostalo
+        </div>
+        <div class="option-item" data-value="ne-zelim" onclick="selectOption(this, 'gender')">
+          <span class="option-emoji">🔒</span>
+          Ne želim reći
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /slides -->
+
+  <!-- Onboarding bottom nav -->
+  <div class="onboarding-nav">
+    <div class="progress-dots" id="progressDots">
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="btn-skip" onclick="skipOnboarding()">Preskoči</button>
+      <button class="btn-next" id="nextBtn" onclick="nextSlide()">Dalje →</button>
+    </div>
+  </div>
+
+</div><!-- /onboarding -->
+
+<!-- ══════════════ AUTH SCREEN ══════════════ -->
+<div id="auth" class="screen">
+  <div class="auth-logo">OUT AND ABOUT</div>
+  <p class="auth-subtitle">Otkri Zagreb kao nikad prije</p>
+
+  <div class="auth-tabs">
+    <div class="auth-tab active" id="tab-login" onclick="switchTab('login')">Prijava</div>
+    <div class="auth-tab" id="tab-register" onclick="switchTab('register')">Registracija</div>
+  </div>
+
+  <!-- Login form -->
+  <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+    <div class="input-group">
+      <label>Email</label>
+      <input class="input-field" type="email" placeholder="tvoj@email.com" id="loginEmail" required>
+    </div>
+    <div class="input-group">
+      <label>Lozinka</label>
+      <input class="input-field" type="password" placeholder="••••••••" id="loginPass" required>
+    </div>
+    <button type="submit" class="btn-auth">Prijavi se</button>
+    <p class="auth-divider">ili</p>
+    <button type="button" class="btn-auth" style="background:rgba(255,255,255,0.08);box-shadow:none;border:1px solid rgba(255,255,255,0.15);" onclick="quickLogin()">
+      🎭 Nastavi kao gost
+    </button>
+  </form>
+
+  <!-- Register form -->
+  <form class="auth-form hidden" id="registerForm" onsubmit="handleRegister(event)">
+    <div class="input-group">
+      <label>Ime i prezime</label>
+      <input class="input-field" type="text" placeholder="Ime Prezime" id="regName" required>
+    </div>
+    <div class="input-group">
+      <label>Email</label>
+      <input class="input-field" type="email" placeholder="tvoj@email.com" id="regEmail" required>
+    </div>
+    <div class="input-group">
+      <label>Lozinka</label>
+      <input class="input-field" type="password" placeholder="Min. 8 znakova" id="regPass" required minlength="8">
+    </div>
+    <button type="submit" class="btn-auth">Kreiraj račun</button>
+  </form>
+</div>
+
+<!-- ══════════════ MAIN APP ══════════════ -->
+<div id="main-app" class="screen">
+
+  <!-- ── HOME TAB ── -->
+  <div id="tab-home" class="app-tab">
+    <div class="home-header fade-in">
+      <div class="home-greeting">
+        Dobar dan! 👋
+        <span id="homeGreetingName">Otkri što se događa</span>
+      </div>
+      <div class="avatar-btn" onclick="showTab('profil')">😊</div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero-banner fade-in stagger-1" id="heroBanner" onclick="openEvent(1)">
+      <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80" alt="Thompson Hipodrom" id="heroImg">
+      <div class="hero-overlay"></div>
+      <div class="hero-badge">🔥 Događaj tjedna</div>
+      <div class="hero-info">
+        <div class="hero-title" id="heroTitle">Thompson — Hipodrom Zagreb</div>
+        <div class="hero-meta">
+          <span>📅 14. lipnja 2026.</span>
+          <span>📍 Hipodrom</span>
+          <span>45€</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI badge -->
+    <div class="ai-badge fade-in stagger-2">
+      ✨ AI preporuke aktivne
+    </div>
+
+    <!-- Predloženo za tebe -->
+    <div class="section-header fade-in stagger-2">
+      <span class="section-title">Predloženo za tebe</span>
+      <span class="section-link" onclick="showTab('pretraga')">Vidi sve</span>
+    </div>
+    <div class="scroll-row fade-in stagger-3" id="suggestedRow"></div>
+
+    <!-- Moj kalendar (home strip) -->
+    <div class="section-header fade-in stagger-3">
+      <span class="section-title">Moj kalendar</span>
+      <span class="section-link" onclick="showTab('profil')">Vidi sve</span>
+    </div>
+    <div id="homeCalStrip" class="home-cal-strip fade-in stagger-3"></div>
+
+    <!-- Top 10 -->
+    <div class="section-header fade-in stagger-4">
+      <span class="section-title">Top 10 ovaj tjedan</span>
+      <span class="section-link" onclick="showTab('pretraga')">Vidi sve</span>
+    </div>
+    <div class="scroll-row fade-in stagger-5" id="topRow"></div>
+  </div>
+
+  <!-- ── SEARCH TAB ── -->
+  <div id="tab-pretraga" class="app-tab" style="display:none;">
+    <div class="search-header">
+      <h1 class="search-title">Istraži Zagreb</h1>
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Pretraži događanja..." id="searchInput" oninput="onSearch(this.value)">
+      </div>
+    </div>
+
+    <div class="filter-row">
+      <div class="filter-chip active" data-cat="sve" onclick="filterCat(this)">Sve</div>
+      <div class="filter-chip" data-cat="concert" onclick="filterCat(this)">Koncerti</div>
+      <div class="filter-chip" data-cat="klub" onclick="filterCat(this)">Klubovi</div>
+      <div class="filter-chip" data-cat="festival" onclick="filterCat(this)">Festivali</div>
+      <div class="filter-chip" data-cat="sport" onclick="filterCat(this)">Sport</div>
+      <div class="filter-chip" data-cat="kultura" onclick="filterCat(this)">Kultura</div>
+    </div>
+
+    <div class="results-grid" id="searchResults"></div>
+  </div>
+
+  <!-- ── CLUBS TAB ── -->
+  <div id="tab-klubovi" class="app-tab" style="display:none;">
+    <div class="clubs-header">
+      <h1 class="search-title">Klubovi</h1>
+    </div>
+
+    <div class="club-filter-row">
+      <button class="club-chip sve active" data-filter="sve" onclick="filterClubs(this)">Sve</button>
+      <button class="club-chip ludi-petak" data-filter="ludi-petak" onclick="filterClubs(this)">🔵 Ludi Petak</button>
+      <button class="club-chip studentska-srijeda" data-filter="studentska-srijeda" onclick="filterClubs(this)">🟢 Studentska Srijeda</button>
+      <button class="club-chip vip-subota" data-filter="vip-subota" onclick="filterClubs(this)">🔴 VIP Subota</button>
+    </div>
+
+    <div id="clubsList"></div>
+  </div>
+
+  <!-- ── PROFILE TAB ── -->
+  <div id="tab-profil" class="app-tab" style="display:none;">
+    <div class="profile-header">
+      <div class="profile-avatar" id="profileAvatar">😊</div>
+      <div class="profile-name" id="profileName">Gost korisnik</div>
+      <div class="profile-sub" id="profileSub">Zagreb, Hrvatska</div>
+      <button class="btn-edit" onclick="showScreen('edit-profile')">Uredi profil</button>
+    </div>
+
+    <div class="profile-stats">
+      <div class="stat-box">
+        <span class="stat-number" id="statEvents">0</span>
+        <span class="stat-label">Događanja</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-number" id="statFavs">0</span>
+        <span class="stat-label">Favoriti</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-number" id="statClubs">3</span>
+        <span class="stat-label">Top klubovi</span>
+      </div>
+    </div>
+
+    <!-- Mini kalendar -->
+    <div class="calendar-section">
+      <div class="section-header" style="padding:0;margin-bottom:14px;">
+        <span class="section-title">Moj kalendar</span>
+        <span class="section-link" id="calMonthLabel"></span>
+      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+
+    <!-- Top Klubovi -->
+    <div class="section-header" style="margin-top:4px;">
+      <span class="section-title">Top klubovi</span>
+      <span class="section-link" onclick="showTab('klubovi')">Vidi sve</span>
+    </div>
+    <div class="scroll-row" id="topClubsRow"></div>
+
+    <!-- Saved events -->
+    <div class="section-header">
+      <span class="section-title">Moja događanja</span>
+    </div>
+    <div class="my-events-list" id="myEventsList">
+      <div class="empty-state">
+        <div class="empty-icon">📅</div>
+        <div class="empty-title">Kalendar je prazan</div>
+        <div class="empty-sub">Dodaj događanja iz sekcije Istraži Zagreb</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BOTTOM NAVIGATION ── -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" onclick="showTab('home')">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">Početna</div>
+    </div>
+    <div class="nav-item" onclick="showTab('pretraga')">
+      <div class="nav-icon">🔍</div>
+      <div class="nav-label">Istraži</div>
+    </div>
+    <div class="nav-item" onclick="showTab('klubovi')">
+      <div class="nav-icon">🎉</div>
+      <div class="nav-label">Klubovi</div>
+    </div>
+    <div class="nav-item" onclick="showTab('profil')">
+      <div class="nav-icon">👤</div>
+      <div class="nav-label">Profil</div>
+    </div>
+  </nav>
+
+</div><!-- /main-app -->
+
+<!-- ══════════════ EVENT DETAIL ══════════════ -->
+<div id="event-detail" class="screen">
+  <div class="detail-hero">
+    <img class="detail-hero-img" id="detailImg" src="" alt="">
+    <div class="detail-hero-overlay"></div>
+    <button class="detail-back-btn" onclick="closeEventDetail()">←</button>
+    <button class="detail-heart-btn" id="detailHeartBtn" onclick="toggleDetailFav()">🤍</button>
+  </div>
+  <div class="detail-content">
+    <div class="detail-cat" id="detailCat"></div>
+    <h1 class="detail-title" id="detailTitle"></h1>
+    <div class="detail-info-row" id="detailInfoRow"></div>
+    <p class="detail-desc" id="detailDesc"></p>
+    <button class="btn-calendar" id="addCalBtn" onclick="toggleCalendar()">
+      <span>📅</span> <span id="addCalText">Dodaj u kalendar</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════ UREDI PROFIL ══════════════ -->
+<div id="edit-profile" class="screen">
+  <div class="edit-profile-header">
+    <button class="detail-back-btn" style="position:relative;top:auto;left:auto;" onclick="saveProfile()">←</button>
+    <span style="font-size:18px;font-weight:700;">Uredi profil</span>
+    <button class="btn-save-profile" onclick="saveProfile()">Spremi</button>
+  </div>
+
+  <!-- Avatar picker -->
+  <div style="text-align:center;padding:24px 0 8px;">
+    <div class="edit-avatar" id="editAvatar">😊</div>
+    <div class="avatar-emoji-row" id="avatarEmojiRow">
+      <span onclick="pickAvatar('😊')">😊</span>
+      <span onclick="pickAvatar('😎')">😎</span>
+      <span onclick="pickAvatar('🤩')">🤩</span>
+      <span onclick="pickAvatar('🥳')">🥳</span>
+      <span onclick="pickAvatar('😈')">😈</span>
+      <span onclick="pickAvatar('🦋')">🦋</span>
+      <span onclick="pickAvatar('🔥')">🔥</span>
+      <span onclick="pickAvatar('👑')">👑</span>
+    </div>
+  </div>
+
+  <div class="edit-form">
+    <div class="input-group">
+      <label>Ime i prezime</label>
+      <input class="input-field" type="text" id="editName" placeholder="Tvoje ime">
+    </div>
+    <div class="input-group">
+      <label>Grad</label>
+      <input class="input-field" type="text" id="editCity" placeholder="Zagreb">
+    </div>
+    <div class="input-group">
+      <label>Dob</label>
+      <div class="option-row" id="editAgeRow">
+        <div class="opt-chip" data-val="18-20" onclick="pickOpt(this,'editAge')">18–20</div>
+        <div class="opt-chip" data-val="21-25" onclick="pickOpt(this,'editAge')">21–25</div>
+        <div class="opt-chip" data-val="26-30" onclick="pickOpt(this,'editAge')">26–30</div>
+        <div class="opt-chip" data-val="30+" onclick="pickOpt(this,'editAge')">30+</div>
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Spol</label>
+      <div class="option-row" id="editGenderRow">
+        <div class="opt-chip" data-val="musko" onclick="pickOpt(this,'editGender')">Muško</div>
+        <div class="opt-chip" data-val="zensko" onclick="pickOpt(this,'editGender')">Žensko</div>
+        <div class="opt-chip" data-val="ostalo" onclick="pickOpt(this,'editGender')">Ostalo</div>
+        <div class="opt-chip" data-val="ne-zelim" onclick="pickOpt(this,'editGender')">Ne želim</div>
+      </div>
+    </div>
+
+    <p style="font-size:13px;font-weight:700;color:var(--purple-sec);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;">Interesi</p>
+    <div class="interest-grid" style="margin-bottom:24px;">
+      <div class="interest-card" data-interest="glazba" onclick="toggleInterestEdit(this)">
+        <div class="check">✓</div>
+        <div class="interest-icon">🎵</div>
+        <div class="interest-label">Glazba</div>
+      </div>
+      <div class="interest-card" data-interest="nocni-zivot" onclick="toggleInterestEdit(this)">
+        <div class="check">✓</div>
+        <div class="interest-icon">🎉</div>
+        <div class="interest-label">Noćni život</div>
+      </div>
+      <div class="interest-card" data-interest="sport" onclick="toggleInterestEdit(this)">
+        <div class="check">✓</div>
+        <div class="interest-icon">⚽</div>
+        <div class="interest-label">Sport</div>
+      </div>
+      <div class="interest-card" data-interest="kultura" onclick="toggleInterestEdit(this)">
+        <div class="check">✓</div>
+        <div class="interest-icon">🎭</div>
+        <div class="interest-label">Kultura</div>
+      </div>
+      <div class="interest-card" data-interest="festivali" onclick="toggleInterestEdit(this)">
+        <div class="check">✓</div>
+        <div class="interest-icon">🎪</div>
+        <div class="interest-label">Festivali</div>
+      </div>
+      <div class="interest-card" data-interest="hrana" onclick="toggleInterestEdit(this)">
+        <div class="check">✓</div>
+        <div class="interest-icon">🍕</div>
+        <div class="interest-label">Food & Drink</div>
+      </div>
+    </div>
+
+    <button class="btn-auth" onclick="saveProfile()" style="margin-bottom:12px;">Spremi promjene</button>
+    <button class="btn-auth" onclick="logOut()"
+      style="background:none;border:2px solid var(--cancel);color:var(--cancel);box-shadow:none;">
+      Odjavi se
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════ RESERVATION MODAL ══════════════ -->
+<div class="modal-overlay" id="reserveModal" onclick="closeModalOnBg(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalClubName">Rezervacija stola</div>
+    <div class="modal-sub">Odaberi slobodan stol (🟡 slobodan, ⬛ zauzet)</div>
+    <div class="table-grid" id="tableGrid"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Odustani</button>
+      <button class="btn-confirm" onclick="confirmReservation()">Rezerviraj</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ TOAST ══════════════ -->
+<div class="toast" id="toast"></div>
+
+<script src="data/events.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
