@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\User\\\\Desktop\\\\PROJEKT\" -Recurse | Where-Object { !$_.PSIsContainer } | Select-Object FullName, Length | Format-Table -AutoSize)"
+      "PowerShell(Get-ChildItem \"C:\\\\Users\\\\User\\\\Desktop\\\\PROJEKT\" -Recurse | Where-Object { !$_.PSIsContainer } | Select-Object FullName, Length | Format-Table -AutoSize)",
+      "Bash(git config *)",
+      "Bash(git commit *)"
     ]
   }
 }
