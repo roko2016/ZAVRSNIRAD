@@ -158,7 +158,7 @@ body {
 .btn-skip { background: none; border: none; color: var(--purple-sec); font-size: 14px; cursor: pointer; padding: 8px; }
 
 /* ─── SHARED PURPLE BUTTONS ─── */
-.btn-next, .btn-auth, .btn-calendar, .btn-confirm, .btn-reserve {
+.btn-next, .btn-auth, .btn-calendar, .btn-confirm, .btn-reserve, .empty-btn {
   background: linear-gradient(135deg, var(--purple-logo), var(--purple-nav));
   color: var(--white); border: none; border-radius: 50px;
   cursor: pointer; font-family: 'Josefin Sans', sans-serif; font-weight: 700;
@@ -167,6 +167,7 @@ body {
 .btn-next { padding: 14px 32px; font-size: 16px; box-shadow: 0 4px 20px rgba(194,41,255,0.4); }
 .btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(194,41,255,0.5); }
 .btn-next:active { transform: scale(0.97); }
+.empty-btn { padding: 12px 28px; font-size: 14px; margin-top: 16px; }
 
 /* ─── AUTH ─── */
 #auth { padding: 60px 28px 40px; }
@@ -217,7 +218,7 @@ body {
   width: 100%; max-width: 390px;
   background: rgba(13,18,69,0.95); backdrop-filter: blur(20px);
   border-top: 1px solid rgba(200,41,255,0.2);
-  display: flex; padding: 8px 0 20px; z-index: 300;
+  display: flex; padding: 8px 0 20px; z-index: 9000;
 }
 .bottom-nav.hidden { display: none; }
 .nav-item {
@@ -231,6 +232,19 @@ body {
 .nav-item.active::after {
   content: ''; position: absolute; top: 0; width: 24px; height: 3px;
   background: var(--purple-logo); border-radius: 0 0 3px 3px;
+}
+.nav-badge {
+  position: absolute; top: 5px; right: 10px;
+  min-width: 16px; height: 16px; border-radius: 8px;
+  background: var(--purple-logo); color: #fff;
+  font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 4px; animation: pulseBadge 2s ease-in-out infinite;
+}
+.nav-badge.hidden { display: none; }
+@keyframes pulseBadge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25); }
 }
 
 /* ─── HOME ─── */
@@ -388,7 +402,8 @@ body {
 .club-mini-rating { font-size: 12px; color: var(--purple-nav); font-weight: 600; }
 
 /* ─── EVENT DETAIL ─── */
-#event-detail { z-index: 50; transform: translateY(100%); }
+/* bottom: 72px znaci da screen fizicki ne prekrije nav traku — rijesava sve z-index bugove */
+#event-detail { z-index: 50; transform: translateY(100%); bottom: 72px; }
 #event-detail.active { transform: translateY(0); }
 .detail-hero { position: relative; height: 280px; }
 .detail-hero-img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -403,7 +418,7 @@ body {
 .detail-heart-btn { right: 20px; font-size: 20px; }
 .detail-back-btn:hover, .detail-heart-btn:hover { transform: scale(1.1); }
 .edit-profile-header .detail-back-btn { position: relative; top: auto; left: auto; }
-.detail-content { padding: 0 20px 100px; }
+.detail-content { padding: 0 20px 28px; }
 .detail-cat {
   display: inline-block; background: rgba(194,41,255,0.2); color: var(--purple);
   font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
@@ -529,7 +544,7 @@ body {
 .empty-sub { font-size: 14px; line-height: 1.5; }
 
 /* ─── EDIT PROFILE ─── */
-#edit-profile { overflow-y: auto; }
+#edit-profile { overflow-y: auto; bottom: 72px; }
 .edit-profile-header { display: flex; align-items: center; justify-content: space-between; padding: 52px 20px 16px; position: sticky; top: 0; background: var(--bg); z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.06); }
 .edit-profile-title { font-size: 18px; font-weight: 700; }
 
@@ -596,6 +611,146 @@ body {
 /* btn-solo — confirm button koji je sam u modalu */
 .btn-solo { flex: 1; }
 
+/* ─── CHAT ─── */
+.chat-header {
+  padding: 56px 20px 20px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nova-poruka-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(194,41,255,0.15); border: none;
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+}
+.nova-poruka-btn:hover { background: rgba(194,41,255,0.28); }
+
+.chat-list { display: flex; flex-direction: column; }
+.chat-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 20px; cursor: pointer;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  transition: background 0.2s;
+}
+.chat-item:active { background: rgba(255,255,255,0.04); }
+.chat-item-avatar {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple-edit), #2a2060);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; flex-shrink: 0;
+  border: 2px solid rgba(200,41,255,0.2);
+}
+.chat-item-info { flex: 1; min-width: 0; }
+.chat-item-name { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+.chat-item-preview { font-size: 13px; color: var(--purple-sec); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-item-time { font-size: 11px; color: var(--purple-sec); flex-shrink: 0; }
+
+#chat-screen { z-index: 60; transform: translateY(100%); overflow: hidden; bottom: 72px; }
+#chat-screen.active { transform: translateY(0); }
+.chat-screen-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 52px 20px 16px; flex-shrink: 0;
+  background: var(--bg); border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+/* back gumb je inace absolute — u headeru mora biti u flowu */
+.chat-screen-header .detail-back-btn { position: relative; top: auto; left: auto; }
+.chat-screen-name { flex: 1; font-size: 18px; font-weight: 700; color: var(--white); }
+.chat-screen-avatar { font-size: 28px; }
+
+.chat-messages {
+  flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+  padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 10px;
+  scrollbar-width: none;
+}
+.chat-messages::-webkit-scrollbar { display: none; }
+
+.chat-bubble-wrap { display: flex; }
+.chat-bubble-wrap.ja { justify-content: flex-end; }
+.chat-bubble-wrap.drug { justify-content: flex-start; }
+.chat-bubble { max-width: 72%; padding: 12px 16px; font-size: 14px; line-height: 1.5; }
+.chat-bubble-wrap.ja .chat-bubble {
+  background: linear-gradient(135deg, var(--purple-logo), var(--purple-nav));
+  color: var(--white); border-radius: 20px 20px 4px 20px;
+}
+.chat-bubble-wrap.drug .chat-bubble {
+  background: #1a2060; color: var(--white);
+  border-radius: 20px 20px 20px 4px;
+}
+.chat-bubble-time { font-size: 10px; opacity: 0.6; margin-top: 5px; display: block; }
+.chat-bubble-wrap.ja .chat-bubble-time { text-align: right; }
+
+.chat-shared-card {
+  margin-top: 8px; padding: 10px 12px;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 12px;
+}
+.chat-shared-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+.chat-shared-title { font-size: 13px; font-weight: 700; color: var(--white); margin-bottom: 3px; }
+.chat-shared-meta { font-size: 11px; color: rgba(255,255,255,0.6); }
+
+.chat-input-wrap {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 20px 16px; flex-shrink: 0;
+  background: var(--bg); border-top: 1px solid rgba(255,255,255,0.06);
+}
+.chat-input {
+  flex: 1; background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(200,41,255,0.25); border-radius: 50px;
+  padding: 13px 18px; font-family: 'Josefin Sans', sans-serif;
+  font-size: 15px; color: var(--white); outline: none; transition: border-color 0.2s;
+}
+.chat-input:focus { border-color: var(--purple-logo); }
+.chat-input::placeholder { color: rgba(255,255,255,0.3); }
+.chat-send-btn {
+  width: 46px; height: 46px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple-logo), var(--purple-nav));
+  border: none; color: var(--white); font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0; transition: all 0.2s;
+}
+.chat-send-btn:hover { transform: scale(1.08); }
+
+.btn-share-event {
+  width: 100%; padding: 16px; margin-top: 12px;
+  background: rgba(255,255,255,0.06); border: 1.5px solid rgba(200,41,255,0.3);
+  border-radius: 50px; color: var(--white);
+  font-family: 'Josefin Sans', sans-serif; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-share-event:hover { background: rgba(200,41,255,0.15); border-color: var(--purple-logo); }
+
+.share-contacts-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.share-contact {
+  display: flex; align-items: center; gap: 14px; padding: 14px;
+  background: var(--card-bg); border: 2px solid transparent;
+  border-radius: 16px; cursor: pointer; transition: all 0.2s;
+}
+.share-contact:hover { border-color: rgba(200,41,255,0.4); }
+.share-contact.selected { border-color: var(--purple-logo); background: rgba(194,41,255,0.12); }
+.share-contact-avatar { font-size: 26px; }
+.share-contact-name { font-size: 15px; font-weight: 700; color: var(--white); flex: 1; }
+.share-msg-wrap { margin-bottom: 20px; }
+
+/* nova poruka modal */
+.np-search { margin-bottom: 14px; }
+.nova-poruka-lista { max-height: 340px; overflow-y: auto; scrollbar-width: none; margin-bottom: 8px; }
+.nova-poruka-lista::-webkit-scrollbar { display: none; }
+.np-kontakt {
+  display: flex; align-items: center; gap: 14px; padding: 14px 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  cursor: pointer; transition: background 0.15s; border-radius: 12px;
+}
+.np-kontakt:hover, .np-kontakt:active { background: rgba(255,255,255,0.05); }
+.np-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple-edit), #2a2060);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; flex-shrink: 0;
+  border: 2px solid rgba(200,41,255,0.2);
+}
+.np-ime { flex: 1; font-size: 15px; font-weight: 700; color: var(--white); }
+.np-badge { font-size: 16px; flex-shrink: 0; }
+
 /* ─── RESPONSIVE — desktop phone mockup ─── */
 @media (min-width: 430px) {
   /* vanjska pozadina oko "mobitela" */
@@ -617,6 +772,8 @@ body {
   #splash { transform: translateX(-50%); }
   #event-detail { transform: translateX(-50%) translateY(100%); }
   #event-detail.active { transform: translateX(-50%) translateY(0); }
+  #chat-screen { transform: translateX(-50%) translateY(100%); }
+  #chat-screen.active { transform: translateX(-50%) translateY(0); }
   #main-app { transform: translateX(-50%) translateX(0); }
 
   /* bottom nav ostaje 390px */

@@ -345,6 +345,15 @@
     <div id="clubsList"></div>
   </div>
 
+  <!-- ── PORUKE TAB ── -->
+  <div id="tab-poruke" class="app-tab">
+    <div class="chat-header">
+      <h1 class="search-title">Poruke</h1>
+      <button class="nova-poruka-btn" onclick="openNovaPoruka()" title="Nova poruka">✏️</button>
+    </div>
+    <div class="chat-list" id="chatList"></div>
+  </div>
+
   <!-- ── PROFILE TAB ── -->
   <div id="tab-profil" class="app-tab">
     <div class="profile-header">
@@ -409,6 +418,12 @@
       </div>
     </div>
 
+    <!-- Moji favoriti -->
+    <div class="section-header">
+      <span class="section-title">Moji favoriti</span>
+    </div>
+    <div class="my-events-list" id="favoritiList"></div>
+
   </div>
 
 </div><!-- /main-app -->
@@ -426,6 +441,11 @@
   <div class="nav-item" onclick="showTab('klubovi')">
     <div class="nav-icon">🎉</div>
     <div class="nav-label">Klubovi</div>
+  </div>
+  <div class="nav-item" onclick="showTab('poruke')">
+    <div class="nav-icon">💬</div>
+    <span class="nav-badge hidden" id="navBadgePoruke"></span>
+    <div class="nav-label">Poruke</div>
   </div>
   <div class="nav-item" onclick="showTab('profil')">
     <div class="nav-icon">👤</div>
@@ -449,6 +469,25 @@
     <button class="btn-calendar" id="addCalBtn" onclick="toggleCalendar()">
       <span>📅</span> <span id="addCalText">Dodaj u kalendar</span>
     </button>
+    <button class="btn-share-event" onclick="openShareModal()">
+      <span>📤</span> <span>Podijeli s prijateljem</span>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════ CHAT SCREEN ══════════════ -->
+<div id="chat-screen" class="screen">
+  <div class="chat-screen-header">
+    <button class="detail-back-btn" onclick="closeChatScreen()">←</button>
+    <div class="chat-screen-name" id="chatScreenName">Poruka</div>
+    <div class="chat-screen-avatar" id="chatScreenAvatar">👤</div>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input-wrap">
+    <input type="text" class="chat-input" id="chatInput"
+           placeholder="Napiši poruku..."
+           onkeypress="if(event.key==='Enter')posaljiPoruku()">
+    <button class="chat-send-btn" onclick="posaljiPoruku()">➤</button>
   </div>
 </div>
 
@@ -587,6 +626,41 @@
     <div class="modal-handle"></div>
     <div class="modal-title">Odaberi mjesec</div>
     <div class="year-grid" id="yearGrid"></div>
+  </div>
+</div>
+
+<!-- ══════════════ NOVA PORUKA MODAL ══════════════ -->
+<div class="modal-overlay" id="novaPorukaMod" onclick="closeNovaPoruka(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Nova poruka</div>
+    <div class="search-bar np-search">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="kontaktSearch" placeholder="Pretraži kontakte..."
+             oninput="pretraziKontakte(this.value)">
+    </div>
+    <div class="nova-poruka-lista" id="novaPorukaMista"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel btn-solo" onclick="closeNovaPoruka()">Zatvori</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SHARE MODAL ══════════════ -->
+<div class="modal-overlay" id="shareModal" onclick="closeShareModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Podijeli događanje</div>
+    <div class="modal-sub">Odaberi prijatelja kojemu šalješ</div>
+    <div class="share-contacts-list" id="shareContactsList"></div>
+    <div class="share-msg-wrap">
+      <input type="text" class="input-field share-msg-input" id="shareMsgInput"
+             placeholder="Napiši poruku...">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeShareModal()">Odustani</button>
+      <button class="btn-confirm" onclick="posaljiDogađanje()">Pošalji</button>
+    </div>
   </div>
 </div>
 

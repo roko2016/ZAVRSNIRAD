@@ -30,6 +30,55 @@ let calViewMonth = new Date().getMonth();
 let currentReserveEventId = null;
 let currentReserveClubName = '';
 
+// chat state
+let chatPoruke = {};       // poruke po chatovima { chatId: [poruka, ...] }
+let chatRedoslijed = [];   // ID-evi sortirani od najnovijeg razgovora
+let aktivniChatId = null;  // koji chat je trenutno otvoren
+let odabraniKontaktId = null; // za share modal
+var chatReplyTimer = null;    // timeout za auto-odgovor
+let neprocitane = {};      // { chatId: brojNeprocitanih }
+
+// ─── CHAT DATA ───
+const CHAT_DATA = [
+  {
+    id: 1,
+    ime: 'Luka Horvat',
+    avatar: '👨',
+    poruke: [
+      { tekst: 'Ej brate, jesi vidio za Ultramarathon Festival?', od: 'drug', vrijeme: '14:23' },
+      { tekst: 'Jesam! Prošle godine smo bili, fenomenalno je bilo', od: 'ja', vrijeme: '14:25' },
+      { tekst: 'Da, idemo opet? Uzmi karte čim prije, brzo se rasprodaju', od: 'drug', vrijeme: '14:26' },
+      { tekst: 'Već sam gledao, ima još mjesta. Uzimam sutra ujutro! 🔥', od: 'ja', vrijeme: '14:28' }
+    ]
+  },
+  {
+    id: 2,
+    ime: 'Ana Kovač',
+    avatar: '👩',
+    poruke: [
+      { tekst: 'Thompson na Hipodromu?! Mora se ići!!!', od: 'drug', vrijeme: '11:05' },
+      { tekst: 'Ma znaš da sam već ubačen u kalendar 😄', od: 'ja', vrijeme: '11:10' },
+      { tekst: 'Haha, brzo si. Možeš li uzeti i meni kartu?', od: 'drug', vrijeme: '11:11' },
+      { tekst: 'Naravno, javljam ti kad kupim!', od: 'ja', vrijeme: '11:15' }
+    ]
+  },
+  {
+    id: 3,
+    ime: 'Matej Blažević',
+    avatar: '🧔',
+    poruke: [
+      { tekst: 'Ovo subotu smo u Aquariusu, free entry do ponoći', od: 'drug', vrijeme: '09:30' },
+      { tekst: 'Savršeno, baš trebam izaći malo', od: 'ja', vrijeme: '09:45' },
+      { tekst: 'Dođi malo ranije, oko 22h — ne čekaj u redu kasno', od: 'drug', vrijeme: '09:47' }
+    ]
+  },
+  // novi kontakti — bez prethodnih poruka
+  { id: 4, ime: 'Petra Novak',     avatar: '👩‍🦰', poruke: [] },
+  { id: 5, ime: 'Ivan Perić',      avatar: '🧑',   poruke: [] },
+  { id: 6, ime: 'Sara Jurić',      avatar: '👧',   poruke: [] },
+  { id: 7, ime: 'Tomislav Babić',  avatar: '👨‍🦱', poruke: [] }
+];
+
 // ─── INIT ───
 document.addEventListener('DOMContentLoaded', () => {
   if ('serviceWorker' in navigator) {
@@ -55,6 +104,32 @@ function loadFromStorage() {
   // ovo dohvaca rezervacije iz storagea
   const rez = localStorage.getItem('oab_rezervacije');
   if (rez) rezervacije = JSON.parse(rez);
+
+  // chat poruke — ako nema u storageu, napuni defaultnima
+  const chats = localStorage.getItem('oab_chats');
+  if (chats) {
+    chatPoruke = JSON.parse(chats);
+  } else {
+    CHAT_DATA.forEach(c => {
+      chatPoruke[c.id] = c.poruke.map(p => ({ ...p }));
+    });
+  }
+
+  // redoslijed razgovora (od najnovijeg)
+  const redoslijed = localStorage.getItem('oab_chat_redoslijed');
+  if (redoslijed) {
+    chatRedoslijed = JSON.parse(redoslijed);
+  } else {
+    chatRedoslijed = CHAT_DATA.map(c => c.id);
+  }
+
+  // neprocitane poruke — inicijalno svaki od 3 chata ima 1
+  const nepr = localStorage.getItem('oab_neprocitane');
+  if (nepr) {
+    neprocitane = JSON.parse(nepr);
+  } else {
+    neprocitane = { 1: 1, 2: 1, 3: 1 };
+  }
 }
 
 function saveToStorage() {
@@ -63,6 +138,9 @@ function saveToStorage() {
   localStorage.setItem('oab_calendar', JSON.stringify(calendarEvents));
   localStorage.setItem('oab_favs', JSON.stringify(favoriteEvents));
   localStorage.setItem('oab_rezervacije', JSON.stringify(rezervacije));
+  localStorage.setItem('oab_chats', JSON.stringify(chatPoruke));
+  localStorage.setItem('oab_chat_redoslijed', JSON.stringify(chatRedoslijed));
+  localStorage.setItem('oab_neprocitane', JSON.stringify(neprocitane));
 }
 
 function startApp() {
@@ -199,6 +277,7 @@ function goToMain() {
   // pokazi bottom nav — sada je vidljiv na svim ekranima
   const nav = document.getElementById('mainNav');
   if (nav) nav.classList.remove('hidden');
+  azurirajBadge();
 
   initHome();
   initSearch();
@@ -535,6 +614,7 @@ function initProfile() {
 function updateStats() {
   document.getElementById('statEvents').textContent = calendarEvents.length;
   document.getElementById('statFavs').textContent = favoriteEvents.length;
+  renderFavoriti();
 }
 
 function renderCalendar() {
@@ -585,8 +665,9 @@ function renderMyEvents() {
   if (calendarEvents.length === 0) {
     list.innerHTML = `<div class="empty-state">
       <div class="empty-icon">📅</div>
-      <div class="empty-title">Kalendar je prazan</div>
-      <div class="empty-sub">Dodaj događanja iz sekcije Istraži Zagreb</div>
+      <div class="empty-title">Još nisi dodao nijedno događanje</div>
+      <div class="empty-sub">Istraži Zagreb i spremi što te zanima</div>
+      <button class="empty-btn" onclick="showTab('pretraga')">Istraži događanja</button>
     </div>`;
     return;
   }
@@ -620,6 +701,42 @@ function ukloniDogađanje(id) {
   showToast('Uklonjeno iz kalendara');
 }
 
+function renderFavoriti() {
+  const lista = document.getElementById('favoritiList');
+  if (!lista) return;
+
+  if (favoriteEvents.length === 0) {
+    lista.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🤍</div>
+      <div class="empty-title">Još nemaš favorita</div>
+      <div class="empty-sub">Tapni srce na eventu da ga spremiš ovdje</div>
+    </div>`;
+    return;
+  }
+
+  lista.innerHTML = favoriteEvents.map(id => {
+    const ev = EVENTS_DATA.find(e => e.id === id);
+    if (!ev) return '';
+    return `
+      <div class="my-event-item" onclick="openEvent(${ev.id})">
+        <img class="my-event-img" src="${ev.image}" alt="${ev.title}" onerror="imgError(this, this.alt)">
+        <div class="my-event-info">
+          <div class="my-event-title">${ev.title}</div>
+          <div class="my-event-date">📅 ${formatDate(ev.date)} u ${ev.time}</div>
+          <div class="my-event-loc">📍 ${ev.location}</div>
+        </div>
+        <button class="my-event-remove" onclick="event.stopPropagation(); ukloniIzFavorita(${ev.id})" title="Ukloni">🤍</button>
+      </div>`;
+  }).join('');
+}
+
+function ukloniIzFavorita(id) {
+  favoriteEvents = favoriteEvents.filter(x => x !== id);
+  saveToStorage();
+  updateStats();
+  showToast('Uklonjeno iz favorita');
+}
+
 function renderTopClubs() {
   const row = document.getElementById('topClubsRow');
   if (!row) return;
@@ -642,8 +759,9 @@ function renderMojeRezervacije() {
   if (rezervacije.length === 0) {
     lista.innerHTML = `<div class="empty-state">
       <div class="empty-icon">🪑</div>
-      <div class="empty-title">Nema rezervacija</div>
-      <div class="empty-sub">Rezerviraj stol u nekom klubu</div>
+      <div class="empty-title">Još nemaš rezervacija</div>
+      <div class="empty-sub">Pronađi klub i rezerviraj stol</div>
+      <button class="empty-btn" onclick="showTab('klubovi')">Istraži klubove</button>
     </div>`;
     return;
   }
@@ -887,23 +1005,34 @@ function confirmReservation() {
 
 // ─── TAB NAVIGATION ───
 function showTab(name) {
+  // zatvori event detail i chat screen ako su otvoreni
+  document.getElementById('event-detail').classList.remove('active');
+  const chatScr = document.getElementById('chat-screen');
+  if (chatScr.classList.contains('active')) {
+    if (chatReplyTimer) clearTimeout(chatReplyTimer);
+    chatScr.classList.remove('active');
+    aktivniChatId = null;
+  }
+
   document.querySelectorAll('.app-tab').forEach(t => t.style.display = 'none');
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
   const tabMap = {
-    'home': 'tab-home',
+    'home':     'tab-home',
     'pretraga': 'tab-pretraga',
-    'klubovi': 'tab-klubovi',
-    'profil': 'tab-profil'
+    'klubovi':  'tab-klubovi',
+    'poruke':   'tab-poruke',
+    'profil':   'tab-profil'
   };
 
-  const navIdx = { 'home': 0, 'pretraga': 1, 'klubovi': 2, 'profil': 3 };
+  // poruke je na indeksu 3, profil na 4
+  const navIdx = { 'home': 0, 'pretraga': 1, 'klubovi': 2, 'poruke': 3, 'profil': 4 };
 
   const tab = document.getElementById(tabMap[name]);
   if (tab) tab.style.display = 'block';
 
   const navItems = document.querySelectorAll('.nav-item');
-  if (navItems[navIdx[name]]) navItems[navIdx[name]].classList.add('active');
+  if (navItems[navIdx[name]] !== undefined) navItems[navIdx[name]].classList.add('active');
 
   if (name === 'profil') {
     updateStats();
@@ -915,6 +1044,14 @@ function showTab(name) {
 
   if (name === 'home') {
     renderHomeCalStrip();
+  }
+
+  if (name === 'poruke') {
+    // ocisti neprocitane kad korisnik otvori listu poruka
+    Object.keys(neprocitane).forEach(k => { neprocitane[k] = 0; });
+    azurirajBadge();
+    saveToStorage();
+    renderChatList();
   }
 
   const mainApp = document.getElementById('main-app');
@@ -1013,6 +1150,262 @@ function navigirajNaMjesec(year, month) {
   calViewMonth = month;
   renderCalendar();
   closeYearModal();
+}
+
+// ─── CHAT ───
+function pomakniChatNaVrh(id) {
+  chatRedoslijed = [id, ...chatRedoslijed.filter(x => x !== id)];
+}
+
+function azurirajBadge() {
+  const ukupno = Object.values(neprocitane).reduce((a, b) => a + b, 0);
+  const badge = document.getElementById('navBadgePoruke');
+  if (!badge) return;
+  if (ukupno > 0) {
+    badge.textContent = ukupno > 9 ? '9+' : ukupno;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+function renderChatList() {
+  const lista = document.getElementById('chatList');
+  if (!lista) return;
+
+  lista.innerHTML = chatRedoslijed.map(id => {
+    const chat = CHAT_DATA.find(c => c.id === id);
+    if (!chat) return '';
+    const poruke = chatPoruke[chat.id] || chat.poruke;
+    const zadnja = poruke[poruke.length - 1];
+    let pregled = '';
+    if (zadnja) {
+      pregled = zadnja.od === 'ja' ? `Ti: ${zadnja.tekst}` : zadnja.tekst;
+      // za dijeljene eventove
+      if (zadnja.tip === 'dijeljenje') pregled = zadnja.od === 'ja' ? 'Ti: 📤 Događanje' : '📤 Događanje';
+    }
+    const kratki = pregled.length === 0
+      ? 'Počni razgovor...'
+      : (pregled.length > 36 ? pregled.slice(0, 36) + '…' : pregled);
+
+    return `
+      <div class="chat-item" onclick="openChat(${chat.id})">
+        <div class="chat-item-avatar">${chat.avatar}</div>
+        <div class="chat-item-info">
+          <div class="chat-item-name">${chat.ime}</div>
+          <div class="chat-item-preview">${kratki}</div>
+        </div>
+        <div class="chat-item-time">${zadnja ? zadnja.vrijeme : ''}</div>
+      </div>`;
+  }).join('');
+}
+
+function openChat(id) {
+  aktivniChatId = id;
+  const chat = CHAT_DATA.find(c => c.id === id);
+  if (!chat) return;
+
+  // oznaci kao procitano
+  neprocitane[id] = 0;
+  azurirajBadge();
+
+  document.getElementById('chatScreenName').textContent = chat.ime;
+  document.getElementById('chatScreenAvatar').textContent = chat.avatar;
+
+  renderChatMessages(id);
+  document.getElementById('chat-screen').classList.add('active');
+
+  // skrolaj na dno poruka
+  setTimeout(() => {
+    const msgs = document.getElementById('chatMessages');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+  }, 120);
+}
+
+function closeChatScreen() {
+  if (chatReplyTimer) clearTimeout(chatReplyTimer);
+  document.getElementById('chat-screen').classList.remove('active');
+  aktivniChatId = null;
+  renderChatList();
+}
+
+function renderChatMessages(id) {
+  const container = document.getElementById('chatMessages');
+  if (!container) return;
+
+  const poruke = chatPoruke[id] || [];
+  container.innerHTML = poruke.map(p => {
+    if (p.tip === 'dijeljenje') {
+      // kartica dijeljenog događanja
+      return `
+        <div class="chat-bubble-wrap ja">
+          <div class="chat-bubble">
+            ${p.tekst ? `<div style="margin-bottom:8px">${p.tekst}</div>` : ''}
+            <div class="chat-shared-card">
+              <div class="chat-shared-label">📤 Dijeljeno događanje</div>
+              <div class="chat-shared-title">${p.eventTitle}</div>
+              <div class="chat-shared-meta">📅 ${p.eventDate} · 📍 ${p.eventLocation}</div>
+            </div>
+            <span class="chat-bubble-time">${p.vrijeme}</span>
+          </div>
+        </div>`;
+    }
+    return `
+      <div class="chat-bubble-wrap ${p.od}">
+        <div class="chat-bubble">
+          <div>${p.tekst}</div>
+          <span class="chat-bubble-time">${p.vrijeme}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
+}
+
+function posaljiPoruku() {
+  const input = document.getElementById('chatInput');
+  const tekst = input.value.trim();
+  if (!tekst || !aktivniChatId) return;
+
+  const now = new Date();
+  const vrijemeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  if (!chatPoruke[aktivniChatId]) chatPoruke[aktivniChatId] = [];
+  chatPoruke[aktivniChatId].push({ tekst, od: 'ja', vrijeme: vrijemeStr });
+  pomakniChatNaVrh(aktivniChatId);
+
+  input.value = '';
+  renderChatMessages(aktivniChatId);
+  saveToStorage();
+
+  // simuliraj odgovor od prijatelja
+  if (chatReplyTimer) clearTimeout(chatReplyTimer);
+  const chatIdZaOdgovor = aktivniChatId; // zahvati ID ovdje, jer aktivniChatId moze se promjeniti
+  chatReplyTimer = setTimeout(() => {
+    if (!chatPoruke[chatIdZaOdgovor]) return;
+    const now2 = new Date();
+    const v2 = `${now2.getHours()}:${String(now2.getMinutes()).padStart(2, '0')}`;
+    chatPoruke[chatIdZaOdgovor].push({ tekst: 'Oke, hvala na informaciji!', od: 'drug', vrijeme: v2 });
+    pomakniChatNaVrh(chatIdZaOdgovor);
+    // ako korisnik nije vise u ovom chatu — dodaj neprocitanu
+    if (aktivniChatId !== chatIdZaOdgovor) {
+      neprocitane[chatIdZaOdgovor] = (neprocitane[chatIdZaOdgovor] || 0) + 1;
+      azurirajBadge();
+    } else {
+      renderChatMessages(chatIdZaOdgovor);
+    }
+    renderChatList();
+    saveToStorage();
+  }, 1000);
+}
+
+// ─── SHARE EVENT ───
+function openShareModal() {
+  if (!currentEventId) return;
+  odabraniKontaktId = null;
+
+  const lista = document.getElementById('shareContactsList');
+  lista.innerHTML = CHAT_DATA.map(chat => `
+    <div class="share-contact" id="shareContact-${chat.id}" onclick="odaberiKontakt(${chat.id})">
+      <div class="share-contact-avatar">${chat.avatar}</div>
+      <div class="share-contact-name">${chat.ime}</div>
+    </div>`).join('');
+
+  document.getElementById('shareMsgInput').value = '';
+  document.getElementById('shareModal').classList.add('open');
+}
+
+function closeShareModal(e) {
+  if (!e || e.target === document.getElementById('shareModal')) {
+    document.getElementById('shareModal').classList.remove('open');
+    odabraniKontaktId = null;
+  }
+}
+
+function odaberiKontakt(id) {
+  odabraniKontaktId = id;
+  document.querySelectorAll('.share-contact').forEach(c => c.classList.remove('selected'));
+  const el = document.getElementById(`shareContact-${id}`);
+  if (el) el.classList.add('selected');
+}
+
+// ─── NOVA PORUKA (pretraga kontakata) ───
+function openNovaPoruka() {
+  document.getElementById('kontaktSearch').value = '';
+  renderKontaktLista(CHAT_DATA);
+  document.getElementById('novaPorukaMod').classList.add('open');
+}
+
+function closeNovaPoruka(e) {
+  if (!e || e.target === document.getElementById('novaPorukaMod')) {
+    document.getElementById('novaPorukaMod').classList.remove('open');
+  }
+}
+
+function pretraziKontakte(val) {
+  const q = val.toLowerCase().trim();
+  const filtrirani = q
+    ? CHAT_DATA.filter(c => c.ime.toLowerCase().includes(q))
+    : CHAT_DATA;
+  renderKontaktLista(filtrirani);
+}
+
+function renderKontaktLista(kontakti) {
+  const lista = document.getElementById('novaPorukaMista');
+  if (!lista) return;
+  if (kontakti.length === 0) {
+    lista.innerHTML = '<div style="text-align:center;padding:24px;color:var(--purple-sec);font-size:14px">Nema rezultata</div>';
+    return;
+  }
+  lista.innerHTML = kontakti.map(c => {
+    const postojiRazgovor = chatRedoslijed.includes(c.id);
+    return `
+      <div class="np-kontakt" onclick="odaberiNovKontakt(${c.id})">
+        <div class="np-avatar">${c.avatar}</div>
+        <div class="np-ime">${c.ime}</div>
+        ${postojiRazgovor ? '<span class="np-badge">💬</span>' : ''}
+      </div>`;
+  }).join('');
+}
+
+function odaberiNovKontakt(id) {
+  // inicijaliziraj prazan chat ako ne postoji
+  if (!chatPoruke[id]) chatPoruke[id] = [];
+  pomakniChatNaVrh(id);
+  saveToStorage();
+  closeNovaPoruka();
+  openChat(id);
+}
+
+function posaljiDogađanje() {
+  if (!odabraniKontaktId) {
+    showToast('⚠️ Odaberi prijatelja!');
+    return;
+  }
+  if (!currentEventId) return;
+
+  const ev = EVENTS_DATA.find(e => e.id === currentEventId);
+  const chat = CHAT_DATA.find(c => c.id === odabraniKontaktId);
+  const poruka = document.getElementById('shareMsgInput').value.trim();
+
+  const now = new Date();
+  const vrijemeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  if (!chatPoruke[odabraniKontaktId]) chatPoruke[odabraniKontaktId] = [];
+  chatPoruke[odabraniKontaktId].push({
+    tip: 'dijeljenje',
+    tekst: poruka,
+    eventTitle: ev.title,
+    eventDate: formatDate(ev.date),
+    eventLocation: ev.location,
+    od: 'ja',
+    vrijeme: vrijemeStr
+  });
+  pomakniChatNaVrh(odabraniKontaktId);
+
+  saveToStorage();
+  closeShareModal();
+  showToast(`📤 Događanje podijeljeno s ${chat.ime}!`);
 }
 
 // ─── IMAGE FALLBACK ───
