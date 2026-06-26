@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0D1245">
-  <meta name="description" content="Pronađi događanja, koncerte i klubove u Zagrebu">
+  <meta name="description" content="Pronađi događaje, koncerte i klubove u Zagrebu">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -14,7 +14,7 @@
 </head>
 <body>
 
-<!-- ══════════════ SPLASH SCREEN ══════════════ -->
+<!-- ══════════════ POČETNI EKRAN ══════════════ -->
 <div id="splash" class="screen active">
   <div class="splash-content">
     <div class="splash-logo">
@@ -30,7 +30,7 @@
   </div>
 </div>
 
-<!-- ══════════════ ONBOARDING ══════════════ -->
+<!-- ══════════════ UVODNI KORACI ══════════════ -->
 <div id="onboarding" class="screen">
 
   <div class="onboarding-slides" id="onboardingSlides">
@@ -70,7 +70,7 @@
         <div class="interest-card" data-interest="hrana" onclick="toggleInterest(this)">
           <div class="check">✓</div>
           <div class="interest-icon">🍕</div>
-          <div class="interest-label">Food & Drink</div>
+          <div class="interest-label">Hrana i piće</div>
         </div>
       </div>
     </div>
@@ -182,10 +182,6 @@
           <span class="option-emoji">👧</span>
           Žensko
         </div>
-        <div class="option-item" data-value="ostalo" onclick="selectOption(this, 'gender')">
-          <span class="option-emoji">🌈</span>
-          Ostalo
-        </div>
         <div class="option-item" data-value="ne-zelim" onclick="selectOption(this, 'gender')">
           <span class="option-emoji">🔒</span>
           Ne želim reći
@@ -197,6 +193,7 @@
 
   <!-- Onboarding bottom nav -->
   <div class="onboarding-nav">
+    <button class="btn-back hidden" id="backBtn" onclick="prevSlide()">←</button>
     <div class="progress-dots" id="progressDots">
       <div class="progress-dot active"></div>
       <div class="progress-dot"></div>
@@ -206,13 +203,13 @@
     </div>
     <div class="onboarding-nav-btns">
       <button class="btn-skip" onclick="skipOnboarding()">Preskoči</button>
-      <button class="btn-next" id="nextBtn" onclick="nextSlide()">Dalje →</button>
+      <button class="btn-next" id="nextBtn" onclick="nextSlide()">Dalje</button>
     </div>
   </div>
 
 </div><!-- /onboarding -->
 
-<!-- ══════════════ AUTH SCREEN ══════════════ -->
+<!-- ══════════════ PRIJAVA / REGISTRACIJA ══════════════ -->
 <div id="auth" class="screen">
   <div class="auth-logo">OUT AND ABOUT</div>
   <p class="auth-subtitle">Otkrij Zagreb kao nikad prije</p>
@@ -222,7 +219,7 @@
     <div class="auth-tab" id="tab-register" onclick="switchTab('register')">Registracija</div>
   </div>
 
-  <!-- Login form -->
+  <!-- Forma za prijavu -->
   <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
     <div class="input-group">
       <label>Email</label>
@@ -239,7 +236,7 @@
     </button>
   </form>
 
-  <!-- Register form -->
+  <!-- Forma za registraciju -->
   <form class="auth-form hidden" id="registerForm" onsubmit="handleRegister(event)">
     <div class="input-group">
       <label>Ime i prezime</label>
@@ -257,30 +254,30 @@
   </form>
 </div>
 
-<!-- ══════════════ MAIN APP ══════════════ -->
+<!-- ══════════════ GLAVNA APLIKACIJA ══════════════ -->
 <div id="main-app" class="screen">
 
-  <!-- ── HOME TAB ── -->
+  <!-- ── POČETNA ── -->
   <div id="tab-home" class="app-tab">
     <div class="home-header fade-in">
       <div class="home-greeting">
         Dobar dan! 👋
-        <span id="homeGreetingName">Otkrij što se događa</span>
+        <span id="homeGreetingName">Spreman za večeras?</span>
       </div>
       <div class="avatar-btn" onclick="showTab('profil')">😊</div>
     </div>
 
     <!-- Hero -->
     <div class="hero-banner fade-in stagger-1" id="heroBanner" onclick="openEvent(1)">
-      <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80" alt="Thompson Hipodrom" id="heroImg" onerror="imgError(this, this.alt)">
+      <img src="slike/arena-zagreb.jpg" alt="Jakov Jozinović Arena Zagreb" id="heroImg" onerror="imgError(this, this.alt)">
       <div class="hero-overlay"></div>
       <div class="hero-badge">🔥 Događaj tjedna</div>
       <div class="hero-info">
-        <div class="hero-title" id="heroTitle">Thompson — Hipodrom Zagreb</div>
+        <div class="hero-title" id="heroTitle">Jakov Jozinović - Ja za čuda letim</div>
         <div class="hero-meta">
-          <span>📅 14. srpnja 2026.</span>
-          <span>📍 Hipodrom</span>
-          <span>45€</span>
+          <span>📅 20. lipnja 2026.</span>
+          <span>📍 Arena Zagreb</span>
+          <span>od 35€</span>
         </div>
       </div>
     </div>
@@ -307,13 +304,13 @@
     <div class="scroll-row fade-in stagger-5" id="topRow"></div>
   </div>
 
-  <!-- ── SEARCH TAB ── -->
+  <!-- ── PRETRAGA ── -->
   <div id="tab-pretraga" class="app-tab">
     <div class="search-header">
       <h1 class="search-title">Istraži Zagreb</h1>
       <div class="search-bar">
         <span class="search-icon">🔍</span>
-        <input type="text" placeholder="Pretraži događanja..." id="searchInput" oninput="onSearch(this.value)">
+        <input type="text" placeholder="Pretraži događaje..." id="searchInput" oninput="onSearch(this.value)">
       </div>
     </div>
 
@@ -324,12 +321,13 @@
       <div class="filter-chip" data-cat="festival" onclick="filterCat(this)">Festivali</div>
       <div class="filter-chip" data-cat="sport" onclick="filterCat(this)">Sport</div>
       <div class="filter-chip" data-cat="kultura" onclick="filterCat(this)">Kultura</div>
+      <div class="filter-chip" data-cat="live" onclick="filterCat(this)">Live svirke</div>
     </div>
 
     <div class="results-grid" id="searchResults"></div>
   </div>
 
-  <!-- ── CLUBS TAB ── -->
+  <!-- ── KLUBOVI ── -->
   <div id="tab-klubovi" class="app-tab">
     <div class="clubs-header">
       <h1 class="search-title">Klubovi</h1>
@@ -345,7 +343,7 @@
     <div id="clubsList"></div>
   </div>
 
-  <!-- ── PORUKE TAB ── -->
+  <!-- ── PORUKE ── -->
   <div id="tab-poruke" class="app-tab">
     <div class="chat-header">
       <h1 class="search-title">Poruke</h1>
@@ -354,7 +352,7 @@
     <div class="chat-list" id="chatList"></div>
   </div>
 
-  <!-- ── PROFILE TAB ── -->
+  <!-- ── PROFIL ── -->
   <div id="tab-profil" class="app-tab">
     <div class="profile-header">
       <div class="profile-avatar" id="profileAvatar">😊</div>
@@ -364,15 +362,15 @@
     </div>
 
     <div class="profile-stats">
-      <div class="stat-box">
+      <div class="stat-box stat-box-link" onclick="document.getElementById('sectionDogađaji').scrollIntoView({behavior:'smooth'})">
         <span class="stat-number" id="statEvents">0</span>
-        <span class="stat-label">Događanja</span>
+        <span class="stat-label">Događaji</span>
       </div>
-      <div class="stat-box">
+      <div class="stat-box stat-box-link" onclick="document.getElementById('sectionFavoriti').scrollIntoView({behavior:'smooth'})">
         <span class="stat-number" id="statFavs">0</span>
         <span class="stat-label">Favoriti</span>
       </div>
-      <div class="stat-box">
+      <div class="stat-box stat-box-link" onclick="document.getElementById('sectionTopKlubovi').scrollIntoView({behavior:'smooth'})">
         <span class="stat-number" id="statClubs">3</span>
         <span class="stat-label">Top klubovi</span>
       </div>
@@ -388,21 +386,21 @@
     </div>
 
     <!-- Top Klubovi -->
-    <div class="section-header section-header-top-sm">
+    <div class="section-header section-header-top-sm" id="sectionTopKlubovi">
       <span class="section-title">Top klubovi</span>
       <span class="section-link" onclick="showTab('klubovi')">Vidi sve</span>
     </div>
     <div class="scroll-row" id="topClubsRow"></div>
 
-    <!-- Moja događanja -->
-    <div class="section-header">
-      <span class="section-title">Moja događanja</span>
+    <!-- Moji događaji -->
+    <div class="section-header" id="sectionDogađaji">
+      <span class="section-title">Moji događaji</span>
     </div>
     <div class="my-events-list" id="myEventsList">
       <div class="empty-state">
         <div class="empty-icon">📅</div>
         <div class="empty-title">Kalendar je prazan</div>
-        <div class="empty-sub">Dodaj događanja iz sekcije Istraži Zagreb</div>
+        <div class="empty-sub">Dodaj događaje iz sekcije Istraži Zagreb</div>
       </div>
     </div>
 
@@ -419,7 +417,7 @@
     </div>
 
     <!-- Moji favoriti -->
-    <div class="section-header">
+    <div class="section-header" id="sectionFavoriti">
       <span class="section-title">Moji favoriti</span>
     </div>
     <div class="my-events-list" id="favoritiList"></div>
@@ -453,7 +451,7 @@
   </div>
 </nav>
 
-<!-- ══════════════ EVENT DETAIL ══════════════ -->
+<!-- ══════════════ DETALJ DOGAĐAJA ══════════════ -->
 <div id="event-detail" class="screen">
   <div class="detail-hero">
     <img class="detail-hero-img" id="detailImg" src="" alt="" onerror="imgError(this, this.alt)">
@@ -472,10 +470,13 @@
     <button class="btn-share-event" onclick="openShareModal()">
       <span>📤</span> <span>Podijeli s prijateljem</span>
     </button>
+    <button class="btn-reserve-detail hidden" id="detailReserveBtn" onclick="openReserveFromDetail()">
+      <span>🪑</span> <span>Rezerviraj stol</span>
+    </button>
   </div>
 </div>
 
-<!-- ══════════════ CHAT SCREEN ══════════════ -->
+<!-- ══════════════ EKRAN CHATA ══════════════ -->
 <div id="chat-screen" class="screen">
   <div class="chat-screen-header">
     <button class="detail-back-btn" onclick="closeChatScreen()">←</button>
@@ -516,8 +517,8 @@
 
   <div class="edit-form">
     <div class="input-group">
-      <label>Ime i prezime</label>
-      <input class="input-field" type="text" id="editName" placeholder="Tvoje ime">
+      <label>Korisničko ime</label>
+      <input class="input-field" type="text" id="editName" placeholder="Tvoje korisničko ime">
     </div>
     <div class="input-group">
       <label>Grad</label>
@@ -537,8 +538,7 @@
       <div class="option-row" id="editGenderRow">
         <div class="opt-chip" data-val="musko" onclick="pickOpt(this,'editGender')">Muško</div>
         <div class="opt-chip" data-val="zensko" onclick="pickOpt(this,'editGender')">Žensko</div>
-        <div class="opt-chip" data-val="ostalo" onclick="pickOpt(this,'editGender')">Ostalo</div>
-        <div class="opt-chip" data-val="ne-zelim" onclick="pickOpt(this,'editGender')">Ne želim</div>
+        <div class="opt-chip" data-val="ne-zelim" onclick="pickOpt(this,'editGender')">Ne želim reći</div>
       </div>
     </div>
 
@@ -572,7 +572,7 @@
       <div class="interest-card" data-interest="hrana" onclick="toggleInterestEdit(this)">
         <div class="check">✓</div>
         <div class="interest-icon">🍕</div>
-        <div class="interest-label">Food & Drink</div>
+        <div class="interest-label">Hrana i piće</div>
       </div>
     </div>
 
@@ -581,7 +581,7 @@
   </div>
 </div>
 
-<!-- ══════════════ RESERVATION MODAL ══════════════ -->
+<!-- ══════════════ MODAL REZERVACIJE ══════════════ -->
 <div class="modal-overlay" id="reserveModal" onclick="closeModalOnBg(event)">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -608,7 +608,7 @@
   </div>
 </div>
 
-<!-- ══════════════ CAL DAN MODAL ══════════════ -->
+<!-- ══════════════ MODAL KALENDAR DAN ══════════════ -->
 <div class="modal-overlay" id="calDayModal" onclick="closeCalDayModal(event)">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -620,7 +620,7 @@
   </div>
 </div>
 
-<!-- ══════════════ YEAR VIEW MODAL ══════════════ -->
+<!-- ══════════════ MODAL GODIŠNJI PRIKAZ ══════════════ -->
 <div class="modal-overlay" id="yearViewModal" onclick="closeYearModal(event)">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
@@ -646,11 +646,11 @@
   </div>
 </div>
 
-<!-- ══════════════ SHARE MODAL ══════════════ -->
+<!-- ══════════════ MODAL DIJELJENJA ══════════════ -->
 <div class="modal-overlay" id="shareModal" onclick="closeShareModal(event)">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title">Podijeli događanje</div>
+    <div class="modal-title">Podijeli događaj</div>
     <div class="modal-sub">Odaberi prijatelja kojemu šalješ</div>
     <div class="share-contacts-list" id="shareContactsList"></div>
     <div class="share-msg-wrap">
@@ -659,12 +659,12 @@
     </div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeShareModal()">Odustani</button>
-      <button class="btn-confirm" onclick="posaljiDogađanje()">Pošalji</button>
+      <button class="btn-confirm" onclick="posaljiDogađaj()">Pošalji</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════ TOAST ══════════════ -->
+<!-- ══════════════ OBAVIJEST ══════════════ -->
 <div class="toast" id="toast"></div>
 
 <script src="data/events.js"></script>

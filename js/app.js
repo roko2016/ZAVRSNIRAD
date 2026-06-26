@@ -1,8 +1,8 @@
 /* ══════════════════════════════════════
-   OUT AND ABOUT — Main App Logic
+   OUT AND ABOUT — Glavna logika aplikacije
    ══════════════════════════════════════ */
 
-// ─── STATE ───
+// ─── STANJE ───
 let currentSlide = 0;
 const totalSlides = 5;
 let userPrefs = {
@@ -30,7 +30,7 @@ let calViewMonth = new Date().getMonth();
 let currentReserveEventId = null;
 let currentReserveClubName = '';
 
-// chat state
+// stanje chata
 let chatPoruke = {};       // poruke po chatovima { chatId: [poruka, ...] }
 let chatRedoslijed = [];   // ID-evi sortirani od najnovijeg razgovora
 let aktivniChatId = null;  // koji chat je trenutno otvoren
@@ -38,7 +38,7 @@ let odabraniKontaktId = null; // za share modal
 var chatReplyTimer = null;    // timeout za auto-odgovor
 let neprocitane = {};      // { chatId: brojNeprocitanih }
 
-// ─── CHAT DATA ───
+// ─── PODACI CHATA ───
 const CHAT_DATA = [
   {
     id: 1,
@@ -56,7 +56,7 @@ const CHAT_DATA = [
     ime: 'Ana Kovač',
     avatar: '👩',
     poruke: [
-      { tekst: 'Thompson na Hipodromu?! Mora se ići!!!', od: 'drug', vrijeme: '11:05' },
+      { tekst: 'Jakov Jozinović u Areni?! Idem sigurno!!!', od: 'drug', vrijeme: '11:05' },
       { tekst: 'Ma znaš da sam već ubačen u kalendar 😄', od: 'ja', vrijeme: '11:10' },
       { tekst: 'Haha, brzo si. Možeš li uzeti i meni kartu?', od: 'drug', vrijeme: '11:11' },
       { tekst: 'Naravno, javljam ti kad kupim!', od: 'ja', vrijeme: '11:15' }
@@ -67,7 +67,7 @@ const CHAT_DATA = [
     ime: 'Matej Blažević',
     avatar: '🧔',
     poruke: [
-      { tekst: 'Ovo subotu smo u Aquariusu, free entry do ponoći', od: 'drug', vrijeme: '09:30' },
+      { tekst: 'Ovo subotu smo u Aquariusu, besplatan ulaz do ponoći', od: 'drug', vrijeme: '09:30' },
       { tekst: 'Savršeno, baš trebam izaći malo', od: 'ja', vrijeme: '09:45' },
       { tekst: 'Dođi malo ranije, oko 22h — ne čekaj u redu kasno', od: 'drug', vrijeme: '09:47' }
     ]
@@ -79,7 +79,7 @@ const CHAT_DATA = [
   { id: 7, ime: 'Tomislav Babić',  avatar: '👨‍🦱', poruke: [] }
 ];
 
-// ─── INIT ───
+// ─── INICIJALIZACIJA ───
 document.addEventListener('DOMContentLoaded', () => {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
@@ -101,7 +101,6 @@ function loadFromStorage() {
   const favs = localStorage.getItem('oab_favs');
   if (favs) favoriteEvents = JSON.parse(favs);
 
-  // ovo dohvaca rezervacije iz storagea
   const rez = localStorage.getItem('oab_rezervacije');
   if (rez) rezervacije = JSON.parse(rez);
 
@@ -156,7 +155,7 @@ function startApp() {
   }
 }
 
-// ─── SCREEN NAVIGATION ───
+// ─── NAVIGACIJA EKRANA ───
 function showScreen(id) {
   const current = document.querySelector('.screen.active');
   const next = document.getElementById(id);
@@ -174,7 +173,7 @@ function showScreen(id) {
   if (id === 'edit-profile') openEditProfileScreen();
 }
 
-// ─── ONBOARDING ───
+// ─── ONBOARDING (uvodni koraci) ───
 function toggleInterest(el) {
   el.classList.toggle('selected');
   const interest = el.dataset.interest;
@@ -201,6 +200,13 @@ function nextSlide() {
   }
 }
 
+function prevSlide() {
+  if (currentSlide > 0) {
+    currentSlide--;
+    updateSlider();
+  }
+}
+
 function updateSlider() {
   const slides = document.getElementById('onboardingSlides');
   slides.style.transform = `translateX(-${currentSlide * 20}%)`;
@@ -212,9 +218,14 @@ function updateSlider() {
 
   const btn = document.getElementById('nextBtn');
   if (currentSlide === totalSlides - 1) {
-    btn.textContent = 'Kreni! 🚀';
+    btn.textContent = 'Kreni!';
   } else {
-    btn.textContent = 'Dalje →';
+    btn.textContent = 'Dalje';
+  }
+
+  const backBtn = document.getElementById('backBtn');
+  if (backBtn) {
+    backBtn.classList.toggle('hidden', currentSlide === 0);
   }
 }
 
@@ -228,7 +239,7 @@ function finishOnboarding() {
   showScreen('auth');
 }
 
-// ─── AUTH ───
+// ─── AUTENTIFIKACIJA ───
 function switchTab(tab) {
   document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
   document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
@@ -264,7 +275,7 @@ function capitalizeFirst(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// ─── MAIN APP ───
+// ─── GLAVNA APLIKACIJA ───
 function goToMain() {
   const mainApp = document.getElementById('main-app');
   mainApp.classList.add('active');
@@ -288,12 +299,12 @@ function goToMain() {
   showTab('home');
 }
 
-// ─── HOME ───
+// ─── POČETNA ───
 function initHome() {
   if (currentUser) {
     const firstName = currentUser.name.split(' ')[0];
     document.getElementById('homeGreetingName').textContent =
-      firstName !== 'Gost' ? `Dobrodošao, ${firstName}!` : 'Otkrij što se događa';
+      firstName !== 'Gost' ? `Dobrodošao, ${firstName}!` : 'Spreman za večeras?';
     const avatarBtn = document.querySelector('.avatar-btn');
     if (avatarBtn) avatarBtn.textContent = currentUser.avatar || '😊';
   }
@@ -344,7 +355,7 @@ function eventCard(event) {
     </div>`;
 }
 
-// ─── SEARCH ───
+// ─── PRETRAGA ───
 function initSearch() {
   renderSearchResults(EVENTS_DATA);
 }
@@ -408,7 +419,7 @@ function eventCardGrid(event) {
     </div>`;
 }
 
-// ─── CLUBS ───
+// ─── KLUBOVI ───
 function initClubs() {
   renderClubs('sve');
 }
@@ -486,7 +497,7 @@ function clubCard(event) {
     </div>`;
 }
 
-// ─── EVENT DETAIL ───
+// ─── DETALJ DOGAĐAJA ───
 function openEvent(id) {
   const podaci = EVENTS_DATA.find(e => e.id === id);
   if (!podaci) return;
@@ -529,6 +540,14 @@ function openEvent(id) {
 
   const isFav = favoriteEvents.includes(id);
   document.getElementById('detailHeartBtn').textContent = isFav ? '❤️' : '🤍';
+
+  // pokazi gumb za rezervaciju samo za klubove
+  const reserveBtn = document.getElementById('detailReserveBtn');
+  if (podaci.category === 'klub') {
+    reserveBtn.classList.remove('hidden');
+  } else {
+    reserveBtn.classList.add('hidden');
+  }
 
   document.getElementById('event-detail').classList.add('active');
 }
@@ -597,7 +616,7 @@ function toggleCalendar() {
   renderHomeCalStrip(); // osvjezi i home strip
 }
 
-// ─── PROFILE ───
+// ─── PROFIL ───
 function initProfile() {
   if (currentUser) {
     document.getElementById('profileName').textContent = currentUser.name;
@@ -665,9 +684,9 @@ function renderMyEvents() {
   if (calendarEvents.length === 0) {
     list.innerHTML = `<div class="empty-state">
       <div class="empty-icon">📅</div>
-      <div class="empty-title">Još nisi dodao nijedno događanje</div>
+      <div class="empty-title">Još nisi dodao nijedan događaj</div>
       <div class="empty-sub">Istraži Zagreb i spremi što te zanima</div>
-      <button class="empty-btn" onclick="showTab('pretraga')">Istraži događanja</button>
+      <button class="empty-btn" onclick="showTab('pretraga')">Istraži događaje</button>
     </div>`;
     return;
   }
@@ -685,13 +704,13 @@ function renderMyEvents() {
           <div class="my-event-date">📅 ${formatDate(ev.date)} u ${ev.time}</div>
           <div class="my-event-loc">📍 ${ev.location}</div>
         </div>
-        <button class="my-event-remove" onclick="event.stopPropagation(); ukloniDogađanje(${ev.id})" title="Ukloni">✕</button>
+        <button class="my-event-remove" onclick="event.stopPropagation(); ukloniDogađaj(${ev.id})" title="Ukloni">✕</button>
       </div>`;
   }).join('');
 }
 
-// ukloni događanje iz kalendara direktno s profila
-function ukloniDogađanje(id) {
+// ukloni događaj iz kalendara direktno s profila
+function ukloniDogađaj(id) {
   calendarEvents = calendarEvents.filter(e => e.id !== id);
   saveToStorage();
   updateStats();
@@ -709,7 +728,7 @@ function renderFavoriti() {
     lista.innerHTML = `<div class="empty-state">
       <div class="empty-icon">🤍</div>
       <div class="empty-title">Još nemaš favorita</div>
-      <div class="empty-sub">Tapni srce na eventu da ga spremiš ovdje</div>
+      <div class="empty-sub">Tapni srce na događaju da ga spremiš ovdje</div>
     </div>`;
     return;
   }
@@ -725,7 +744,7 @@ function renderFavoriti() {
           <div class="my-event-date">📅 ${formatDate(ev.date)} u ${ev.time}</div>
           <div class="my-event-loc">📍 ${ev.location}</div>
         </div>
-        <button class="my-event-remove" onclick="event.stopPropagation(); ukloniIzFavorita(${ev.id})" title="Ukloni">🤍</button>
+        <button class="fav-heart-btn" onclick="event.stopPropagation(); ukloniIzFavorita(${ev.id})" title="Ukloni">❤️</button>
       </div>`;
   }).join('');
 }
@@ -751,7 +770,6 @@ function renderTopClubs() {
     </div>`).join('');
 }
 
-// ovo renderira moje rezervacije u profilu
 function renderMojeRezervacije() {
   const lista = document.getElementById('mojeRezervacije');
   if (!lista) return;
@@ -790,7 +808,7 @@ function renderHomeCalStrip() {
 
   if (calendarEvents.length === 0) {
     strip.innerHTML = `<div class="home-cal-empty" onclick="showTab('pretraga')">
-      📅 Dodaj događanja u kalendar — bit će prikazana ovdje
+      📅 Dodaj događaje u kalendar — bit će prikazani ovdje
     </div>`;
     return;
   }
@@ -807,7 +825,7 @@ function renderHomeCalStrip() {
 
   if (upcoming.length === 0) {
     strip.innerHTML = `<div class="home-cal-empty" onclick="showTab('pretraga')">
-      📅 Nema nadolazećih događanja — istraži Zagreb!
+      📅 Nema nadolazećih događaja — istraži Zagreb!
     </div>`;
     return;
   }
@@ -832,7 +850,7 @@ function renderHomeCalStrip() {
   }).join('') + `</div>`;
 }
 
-// ─── EDIT PROFILE ───
+// ─── UREĐIVANJE PROFILA ───
 function openEditProfileScreen() {
   if (currentUser) {
     document.getElementById('editName').value = currentUser.name || '';
@@ -917,7 +935,7 @@ function logOut() {
   location.reload();
 }
 
-// ─── RESERVATION ───
+// ─── REZERVACIJA ───
 function openReserve(name, eventId) {
   currentReserveClubName = name.split('—')[0].trim();
   currentReserveEventId = eventId;
@@ -1003,7 +1021,13 @@ function confirmReservation() {
   showToast(`✅ Stol ${selectedTable} uspješno rezerviran!`);
 }
 
-// ─── TAB NAVIGATION ───
+function openReserveFromDetail() {
+  if (!currentEventId) return;
+  const ev = EVENTS_DATA.find(e => e.id === currentEventId);
+  if (ev) openReserve(ev.title, ev.id);
+}
+
+// ─── NAVIGACIJA TABOVA ───
 function showTab(name) {
   // zatvori event detail i chat screen ako su otvoreni
   document.getElementById('event-detail').classList.remove('active');
@@ -1059,8 +1083,8 @@ function showTab(name) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ─── TOAST ───
-var toastTimer = null; // var je tu ostao od nekad
+// ─── OBAVIJESTI ───
+var toastTimer = null;
 
 function showToast(msg) {
   const toast = document.getElementById('toast');
@@ -1070,7 +1094,18 @@ function showToast(msg) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
-// ─── HELPERS ───
+function getRandomReply() {
+  const odgovori = [
+    'Oke, hvala na informaciji!',
+    'Super, vidimo se!',
+    'Odlično, jedva čekam!',
+    'Savršeno, hvala!',
+    'Jasno, hvala na javljanju!'
+  ];
+  return odgovori[Math.floor(Math.random() * odgovori.length)];
+}
+
+// ─── POMOĆNE FUNKCIJE ───
 function formatDate(dateStr) {
   const d = new Date(dateStr);
   const months = ['sij','velj','ožu','tra','svi','lip','srp','kol','ruj','lis','stu','pro'];
@@ -1083,7 +1118,8 @@ function catLabel(cat) {
     klub: 'Klub',
     festival: 'Festival',
     sport: 'Sport',
-    kultura: 'Kultura'
+    kultura: 'Kultura',
+    live: 'Live svirka'
   };
   return map[cat] || cat;
 }
@@ -1102,7 +1138,7 @@ function prikaziDanPopup(year, month, day) {
 
   const content = document.getElementById('calDayContent');
   if (dayEvents.length === 0) {
-    content.innerHTML = '<div class="cal-popup-empty">📭 Nema događanja ovaj dan</div>';
+    content.innerHTML = '<div class="cal-popup-empty">📭 Nema događaja ovaj dan</div>';
   } else {
     content.innerHTML = dayEvents.map(ev => `
       <div class="cal-popup-event" onclick="closeCalDayModal(); openEvent(${ev.id})">
@@ -1121,7 +1157,7 @@ function closeCalDayModal(e) {
   }
 }
 
-// ─── YEAR VIEW ───
+// ─── GODIŠNJI PRIKAZ ───
 function prikaziGodinuView() {
   const now = new Date();
   const thisYear = now.getFullYear();
@@ -1152,7 +1188,7 @@ function navigirajNaMjesec(year, month) {
   closeYearModal();
 }
 
-// ─── CHAT ───
+// ─── PORUKE ───
 function pomakniChatNaVrh(id) {
   chatRedoslijed = [id, ...chatRedoslijed.filter(x => x !== id)];
 }
@@ -1182,10 +1218,10 @@ function renderChatList() {
     if (zadnja) {
       pregled = zadnja.od === 'ja' ? `Ti: ${zadnja.tekst}` : zadnja.tekst;
       // za dijeljene eventove
-      if (zadnja.tip === 'dijeljenje') pregled = zadnja.od === 'ja' ? 'Ti: 📤 Događanje' : '📤 Događanje';
+      if (zadnja.tip === 'dijeljenje') pregled = zadnja.od === 'ja' ? 'Ti: 📤 Događaj' : '📤 Događaj';
     }
     const kratki = pregled.length === 0
-      ? 'Počni razgovor...'
+      ? `Pozdravi ${chat.ime.split(' ')[0]} i dogovorite izlazak 👋`
       : (pregled.length > 36 ? pregled.slice(0, 36) + '…' : pregled);
 
     return `
@@ -1236,13 +1272,13 @@ function renderChatMessages(id) {
   const poruke = chatPoruke[id] || [];
   container.innerHTML = poruke.map(p => {
     if (p.tip === 'dijeljenje') {
-      // kartica dijeljenog događanja
+      // kartica dijeljenog događaja
       return `
         <div class="chat-bubble-wrap ja">
           <div class="chat-bubble">
             ${p.tekst ? `<div style="margin-bottom:8px">${p.tekst}</div>` : ''}
             <div class="chat-shared-card">
-              <div class="chat-shared-label">📤 Dijeljeno događanje</div>
+              <div class="chat-shared-label">📤 Dijeljeni događaj</div>
               <div class="chat-shared-title">${p.eventTitle}</div>
               <div class="chat-shared-meta">📅 ${p.eventDate} · 📍 ${p.eventLocation}</div>
             </div>
@@ -1285,7 +1321,7 @@ function posaljiPoruku() {
     if (!chatPoruke[chatIdZaOdgovor]) return;
     const now2 = new Date();
     const v2 = `${now2.getHours()}:${String(now2.getMinutes()).padStart(2, '0')}`;
-    chatPoruke[chatIdZaOdgovor].push({ tekst: 'Oke, hvala na informaciji!', od: 'drug', vrijeme: v2 });
+    chatPoruke[chatIdZaOdgovor].push({ tekst: getRandomReply(), od: 'drug', vrijeme: v2 });
     pomakniChatNaVrh(chatIdZaOdgovor);
     // ako korisnik nije vise u ovom chatu — dodaj neprocitanu
     if (aktivniChatId !== chatIdZaOdgovor) {
@@ -1299,7 +1335,7 @@ function posaljiPoruku() {
   }, 1000);
 }
 
-// ─── SHARE EVENT ───
+// ─── DIJELJENJE DOGAĐAJA ───
 function openShareModal() {
   if (!currentEventId) return;
   odabraniKontaktId = null;
@@ -1377,7 +1413,7 @@ function odaberiNovKontakt(id) {
   openChat(id);
 }
 
-function posaljiDogađanje() {
+function posaljiDogađaj() {
   if (!odabraniKontaktId) {
     showToast('⚠️ Odaberi prijatelja!');
     return;
@@ -1405,10 +1441,10 @@ function posaljiDogađanje() {
 
   saveToStorage();
   closeShareModal();
-  showToast(`📤 Događanje podijeljeno s ${chat.ime}!`);
+  showToast(`📤 Događaj podijeljen s ${chat.ime}!`);
 }
 
-// ─── IMAGE FALLBACK ───
+// ─── ZAMJENA ZA SLIKE (fallback) ───
 function imgError(img, naziv) {
   img.onerror = null;
   const div = document.createElement('div');
@@ -1419,5 +1455,3 @@ function imgError(img, naziv) {
     img.style.display = 'none';
   }
 }
-
-console.log('app.js ucitan');

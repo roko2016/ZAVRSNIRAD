@@ -1,7 +1,7 @@
 {
   "name": "Out and About",
   "short_name": "Out & About",
-  "description": "Pronađi događanja, koncerte i klubove u Zagrebu",
+  "description": "Pronađi događaje, koncerte i klubove u Zagrebu",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#0D1245",
